@@ -6,6 +6,7 @@ import {
   ArrowUpRight,
   Briefcase,
   Certificate,
+  EnvelopeSimple,
   GithubLogo,
   GraduationCap,
   GlobeHemisphereWest,
@@ -26,6 +27,7 @@ gsap.registerPlugin(ScrollTrigger);
 const profileLinks = {
   linkedin: 'https://www.linkedin.com/in/boris-beltran-56309933b',
   github: 'https://github.com/Hollow23-hub',
+  email: 'borisbel231199@gmail.com',
 };
 
 const projects = [
@@ -113,7 +115,9 @@ const projects = [
 
 const copy = {
   es: {
+    metaDescription: 'Portafolio de Boris Beltrán, ingeniero informático especializado en frontend, e-commerce y productos web.',
     nav: ['Inicio', 'Proyectos', 'Experiencia', 'Stack', 'Contacto'],
+    homeAria: 'Ir al inicio', navAria: 'Navegación principal', languageAria: 'Seleccionar idioma', openMenu: 'Abrir menú', closeMenu: 'Cerrar menú', projectScreenshot: 'captura del proyecto',
     kicker: 'Ingeniero informático', titleA: 'BORIS', titleB: 'BELTRÁN',
     specialization: 'FRONTEND ENGINEER · E-COMMERCE · FULL-STACK',
     intro: 'Ingeniero informático que diseña y desarrolla experiencias web rápidas, accesibles y escalables. Especializado en frontend y e-commerce, con participación en backend e infraestructura.',
@@ -133,7 +137,9 @@ const copy = {
     linkedinCta: 'CONTACTAR POR LINKEDIN', githubCta: 'VER GITHUB', location: 'Ciudad Guayana, Venezuela',
   },
   en: {
+    metaDescription: 'Portfolio of Boris Beltrán, a computer engineer specializing in frontend, e-commerce, and web products.',
     nav: ['Home', 'Projects', 'Experience', 'Stack', 'Contact'],
+    homeAria: 'Go to home', navAria: 'Primary navigation', languageAria: 'Select language', openMenu: 'Open menu', closeMenu: 'Close menu', projectScreenshot: 'project screenshot',
     kicker: 'Computer engineer', titleA: 'BORIS', titleB: 'BELTRÁN',
     specialization: 'FRONTEND ENGINEER · E-COMMERCE · FULL-STACK',
     intro: 'Computer engineer designing and building fast, accessible, and scalable web experiences. Specialized in frontend and e-commerce, with experience in backend and infrastructure.',
@@ -347,7 +353,10 @@ export function App() {
   useEffect(() => {
     document.documentElement.lang = language;
     document.title = 'Boris Beltrán | Frontend Engineer';
-  }, [language]);
+    document.querySelector('meta[name="description"]')?.setAttribute('content', t.metaDescription);
+    document.querySelector('meta[property="og:description"]')?.setAttribute('content', t.metaDescription);
+    document.querySelector('meta[name="twitter:description"]')?.setAttribute('content', t.metaDescription);
+  }, [language, t.metaDescription]);
 
   useEffect(() => {
     const updateProgress = () => {
@@ -412,18 +421,18 @@ export function App() {
       <div className={introComplete ? 'site-shell intro-ready' : 'site-shell intro-pending'} id="top" ref={shellRef}>
       <div className="scroll-progress" ref={progressRef} aria-hidden="true" />
       <header className="site-header">
-        <button className="brand" onClick={() => scrollTo('top')} aria-label="Ir al inicio">
+        <button className="brand" onClick={() => scrollTo('top')} aria-label={t.homeAria}>
           <span className="brand-copy">BORIS BELTRÁN</span>
         </button>
-        <nav className={menuOpen ? 'nav open' : 'nav'} aria-label="Navegación principal">
+        <nav className={menuOpen ? 'nav open' : 'nav'} id="primary-navigation" aria-label={t.navAria}>
           {t.nav.map((item, index) => <button key={item} onClick={() => scrollTo(navTargets[index])}>{item}</button>)}
         </nav>
         <div className="header-actions">
-          <div className="language" aria-label="Seleccionar idioma">
+          <div className="language" role="group" aria-label={t.languageAria}>
             <button className={language === 'es' ? 'active' : ''} onClick={() => setLanguage('es')}>ES</button><span>/</span>
             <button className={language === 'en' ? 'active' : ''} onClick={() => setLanguage('en')}>EN</button>
           </div>
-          <button className="menu-button" onClick={() => setMenuOpen((value) => !value)} aria-label="Abrir menú">{menuOpen ? <X size={25} /> : <List size={25} />}</button>
+          <button className="menu-button" onClick={() => setMenuOpen((value) => !value)} aria-label={menuOpen ? t.closeMenu : t.openMenu} aria-expanded={menuOpen} aria-controls="primary-navigation">{menuOpen ? <X size={25} /> : <List size={25} />}</button>
         </div>
       </header>
 
@@ -455,7 +464,7 @@ export function App() {
                   <div><b>{t.objective}</b><p>{project.descriptionText}</p></div><div><b>{t.contribution}</b><p>{project.roleText}</p></div>
                   {project.href ? <ExternalLink href={project.href} className="project-link">{t.visit}<ArrowUpRight size={16} /></ExternalLink> : <span className="project-private">{t.internal}</span>}
                 </div>
-                <div className="project-image"><img src={project.image} alt={`${project.name} — captura del proyecto`} loading="lazy" /></div>
+                <div className="project-image"><img src={project.image} alt={`${project.name} — ${t.projectScreenshot}`} loading="lazy" /></div>
               </article>
             ))}
           </div>
@@ -491,6 +500,7 @@ export function App() {
               {t.contactAreas.map((area) => <strong key={area}>{area}</strong>)}
             </div>
             <ExternalLink href={profileLinks.github} className="button github-button"><GithubLogo size={20} weight="fill" />{t.githubCta}</ExternalLink>
+            <a className="button email-button" href={`mailto:${profileLinks.email}`}><EnvelopeSimple size={20} weight="bold" />{profileLinks.email}</a>
             <div className="contact-meta">
               <p><Translate size={21} />{t.contactLanguage}</p>
               <p><GlobeHemisphereWest size={21} />{t.contactMode}</p>
