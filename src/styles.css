@@ -57,7 +57,7 @@ img { display: block; max-width: 100%; }
 
 .hero { position: relative; min-height: 900px; padding-top: 178px; border-bottom: 1px solid var(--line); }
 .hero::after { content: ''; position: absolute; inset: 82px 0 auto; height: 1px; background: rgba(255,255,255,.04); }
-.hero-copy { position: relative; z-index: 2; width: min(610px, 56vw); }
+.hero-copy { position: relative; z-index: 3; width: min(610px, 56vw); }
 .eyebrow { margin: 0 0 20px; color: var(--green); font-size: 11px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; }
 .hero h1 { margin: 0; font-family: var(--display); font-size: clamp(104px, 12vw, 186px); line-height: .77; letter-spacing: -.02em; font-weight: 400; }
 .hero h1 span, .hero h1 strong { display: block; font-weight: 400; }
@@ -70,6 +70,9 @@ img { display: block; max-width: 100%; }
 .button { min-height: 50px; display: inline-flex; align-items: center; justify-content: center; gap: 12px; padding: 0 25px; border: 1px solid var(--green); cursor: pointer; font-size: 11px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; transition: transform .3s ease, background-color .3s ease, border-color .3s ease, box-shadow .3s ease; }
 .button.primary { background: var(--green); color: #061108; }
 .button.primary:hover { transform: translateY(-3px); background: #f1f1ee; border-color: #f1f1ee; box-shadow: 0 12px 34px rgba(0,237,100,.16); }
+.curriculum-button { min-width: 176px; flex-shrink: 0; white-space: nowrap; color: #e1e4e1; border-color: rgba(255,255,255,.28); background: rgba(8,12,10,.72); }
+.curriculum-button svg { width: 18px; height: 18px; flex: 0 0 18px; }
+.curriculum-button:hover { transform: translateY(-3px); color: var(--green); border-color: var(--green); }
 .availability { display: flex; align-items: center; gap: 10px; margin-top: 17px; color: #949a95; font-size: 11px; }
 .availability span { width: 8px; height: 8px; border-radius: 50%; background: var(--green); box-shadow: 0 0 18px rgba(0,237,100,.8); }
 .hero-visual { position: absolute; z-index: 1; top: 108px; right: -56px; width: min(66vw, 980px); height: 690px; opacity: .92; pointer-events: none; overflow: hidden; }
@@ -177,14 +180,16 @@ img { display: block; max-width: 100%; }
   .nav { position: absolute; top: 70px; left: 0; right: 0; display: none; flex-direction: column; align-items: stretch; gap: 0; padding: 18px 20px 26px; background: #0c0f0d; border-bottom: 1px solid var(--line); }
   .nav.open { display: flex; }
   .nav button { padding: 13px 0; text-align: left; border-bottom: 1px solid rgba(255,255,255,.08); }
-  .hero { min-height: 844px; padding-top: 145px; }
+  .hero { min-height: 0; padding-top: 145px; padding-bottom: 38px; }
   .hero-copy { width: 100%; }
   .hero h1 { font-size: clamp(82px, 25vw, 120px); }
   .specialization { font-size: 11px; letter-spacing: .18em; }
   .hero-intro { max-width: 480px; font-size: 13px; }
   .hero-visual { top: 338px; right: -350px; width: 880px; height: 560px; opacity: .48; }
   .hero-links { flex-wrap: wrap; gap: 18px 24px; }
-  .hero-stats { left: 20px; right: 20px; bottom: 32px; gap: 8px; grid-template-columns: repeat(3, 1fr); }
+  .availability { margin-top: 24px; line-height: 1.5; }
+  .availability span { flex: 0 0 8px; }
+  .hero-stats { position: relative; left: auto; right: auto; bottom: auto; margin-top: 30px; gap: 8px; grid-template-columns: repeat(3, 1fr); }
   .hero-stats div { padding-left: 10px; }
   .hero-stats strong { font-size: 28px; }
   .hero-stats span { font-size: 9px; }
@@ -206,9 +211,10 @@ img { display: block; max-width: 100%; }
 @media (max-width: 420px) {
   .brand-copy { font-size: 9px; letter-spacing: .1em; }
   .header-actions { gap: 15px; }
-  .hero { min-height: 820px; }
+  .hero { min-height: 0; }
   .hero h1 { font-size: 88px; }
   .hero-links .button { flex-basis: 100%; }
+  .hero-links .curriculum-button { width: 100%; }
   .project { grid-template-columns: 1fr; }
   .project h3 { font-size: 42px; }
   .skill-columns { grid-template-columns: 1fr 1fr; }

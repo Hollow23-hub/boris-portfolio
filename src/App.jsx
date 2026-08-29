@@ -6,6 +6,7 @@ import {
   ArrowUpRight,
   Briefcase,
   Certificate,
+  DownloadSimple,
   EnvelopeSimple,
   GithubLogo,
   GraduationCap,
@@ -13,7 +14,6 @@ import {
   LinkedinLogo,
   List,
   MapPin,
-  Translate,
   X,
 } from '@phosphor-icons/react';
 import '@fontsource/bebas-neue';
@@ -28,6 +28,11 @@ const profileLinks = {
   linkedin: 'https://www.linkedin.com/in/boris-beltran-56309933b',
   github: 'https://github.com/Hollow23-hub',
   email: 'borisbel231199@gmail.com',
+};
+
+const curriculumLinks = {
+  es: '/curriculum/Boris_Beltran_Curriculum_ES.pdf',
+  en: '/curriculum/Boris_Beltran_Curriculum_EN.pdf',
 };
 
 const projects = [
@@ -121,7 +126,7 @@ const copy = {
     kicker: 'Ingeniero informático', titleA: 'BORIS', titleB: 'BELTRÁN',
     specialization: 'FRONTEND ENGINEER · E-COMMERCE · FULL-STACK',
     intro: 'Ingeniero informático que diseña y desarrolla experiencias web rápidas, accesibles y escalables. Especializado en frontend y e-commerce, con participación en backend e infraestructura.',
-    seeProjects: 'VER PROYECTOS', availability: 'Disponible para oportunidades remotas y proyectos de producto',
+    seeProjects: 'VER PROYECTOS', resumeCta: 'DESCARGAR CV', availability: 'Disponible para oportunidades remotas y proyectos de producto',
     stats: [['3+', 'Años de experiencia'], ['5', 'Proyectos'], ['2', 'Certificaciones']],
     selected: 'PROYECTOS DESTACADOS', objective: 'Objetivo', contribution: 'Mi aporte', visit: 'Visitar proyecto', internal: 'Proyecto privado / local',
     experience: 'EXPERIENCIA', experienceRole: 'Desarrollador frontend con participación full-stack',
@@ -133,7 +138,7 @@ const copy = {
     contactBody: 'Estoy abierto a oportunidades frontend, colaboraciones full-stack y proyectos donde el producto, el rendimiento y una buena experiencia de usuario importen.',
     contactOpen: 'DISPONIBLE PARA',
     contactAreas: ['POSICIONES FRONTEND', 'PROYECTOS E-COMMERCE', 'COLABORACIÓN FULL-STACK'],
-    contactLanguage: 'Español e inglés', contactMode: 'Trabajo remoto',
+    contactMode: 'Trabajo remoto',
     linkedinCta: 'CONTACTAR POR LINKEDIN', githubCta: 'VER GITHUB', location: 'Ciudad Guayana, Venezuela',
   },
   en: {
@@ -143,7 +148,7 @@ const copy = {
     kicker: 'Computer engineer', titleA: 'BORIS', titleB: 'BELTRÁN',
     specialization: 'FRONTEND ENGINEER · E-COMMERCE · FULL-STACK',
     intro: 'Computer engineer designing and building fast, accessible, and scalable web experiences. Specialized in frontend and e-commerce, with experience in backend and infrastructure.',
-    seeProjects: 'VIEW PROJECTS', availability: 'Available for remote opportunities and product work',
+    seeProjects: 'VIEW PROJECTS', resumeCta: 'DOWNLOAD CV', availability: 'Available for remote opportunities and product work',
     stats: [['3+', 'Years of experience'], ['5', 'Projects'], ['2', 'Certifications']],
     selected: 'SELECTED PROJECTS', objective: 'Objective', contribution: 'My contribution', visit: 'Visit project', internal: 'Private / local project',
     experience: 'EXPERIENCE', experienceRole: 'Frontend developer with full-stack participation',
@@ -155,7 +160,7 @@ const copy = {
     contactBody: 'I am open to frontend opportunities, full-stack collaboration, and projects where product thinking, performance, and user experience matter.',
     contactOpen: 'OPEN TO',
     contactAreas: ['FRONTEND ROLES', 'E-COMMERCE PROJECTS', 'FULL-STACK COLLABORATION'],
-    contactLanguage: 'English and Spanish', contactMode: 'Remote work',
+    contactMode: 'Remote work',
     linkedinCta: 'CONTACT ON LINKEDIN', githubCta: 'VIEW GITHUB', location: 'Ciudad Guayana, Venezuela',
   },
 };
@@ -346,6 +351,7 @@ export function App() {
   const progressRef = useRef(null);
   const handleIntroComplete = useCallback(() => setIntroComplete(true), []);
   const t = copy[language];
+  const activeCurriculumLink = curriculumLinks[language];
   const projectContent = useMemo(() => projects.map((project) => ({
     ...project, eyebrowText: project.eyebrow[language], descriptionText: project.description[language], roleText: project.role[language],
   })), [language]);
@@ -445,8 +451,16 @@ export function App() {
             <p className="specialization">{t.specialization}</p><p className="hero-intro">{t.intro}</p>
             <div className="hero-links">
               <button className="button primary" onClick={() => scrollTo('projects')}>{t.seeProjects}<ArrowDown size={18} weight="bold" /></button>
+              <a
+                className="button curriculum-button"
+                href={activeCurriculumLink}
+                download={`Boris_Beltran_Curriculum_${language.toUpperCase()}.pdf`}
+              >
+                {t.resumeCta}<DownloadSimple size={18} weight="bold" />
+              </a>
               <ExternalLink href={profileLinks.linkedin}>LinkedIn <ArrowUpRight size={16} /></ExternalLink>
               <ExternalLink href={profileLinks.github}>GitHub <ArrowUpRight size={16} /></ExternalLink>
+              <a className="hero-email" href={`mailto:${profileLinks.email}`}><EnvelopeSimple size={16} weight="bold" />{profileLinks.email}</a>
             </div>
             <p className="availability"><span />{t.availability}</p>
           </div>
@@ -502,7 +516,6 @@ export function App() {
             <ExternalLink href={profileLinks.github} className="button github-button"><GithubLogo size={20} weight="fill" />{t.githubCta}</ExternalLink>
             <a className="button email-button" href={`mailto:${profileLinks.email}`}><EnvelopeSimple size={20} weight="bold" />{profileLinks.email}</a>
             <div className="contact-meta">
-              <p><Translate size={21} />{t.contactLanguage}</p>
               <p><GlobeHemisphereWest size={21} />{t.contactMode}</p>
               <p><MapPin size={21} />{t.location}</p>
             </div>
