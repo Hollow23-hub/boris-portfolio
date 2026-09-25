@@ -21,6 +21,7 @@ import '@fontsource/manrope/400.css';
 import '@fontsource/manrope/500.css';
 import '@fontsource/manrope/600.css';
 import '@fontsource/manrope/700.css';
+import { fetchPortfolioContent } from './sanity';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -142,18 +143,18 @@ const copy = {
     linkedinCta: 'CONTACTAR POR LINKEDIN', githubCta: 'VER GITHUB', location: 'Ciudad Guayana, Venezuela',
   },
   en: {
-    metaDescription: 'Portfolio of Boris Beltrán, a computer engineer specializing in frontend, e-commerce, and web products.',
+    metaDescription: 'Portfolio of Boris Beltrán, a frontend engineer with a degree in Informatics Engineering, specializing in e-commerce and web products.',
     nav: ['Home', 'Projects', 'Experience', 'Stack', 'Contact'],
     homeAria: 'Go to home', navAria: 'Primary navigation', languageAria: 'Select language', openMenu: 'Open menu', closeMenu: 'Close menu', projectScreenshot: 'project screenshot',
-    kicker: 'Computer engineer', titleA: 'BORIS', titleB: 'BELTRÁN',
+    kicker: 'Informatics engineer', titleA: 'BORIS', titleB: 'BELTRÁN',
     specialization: 'FRONTEND ENGINEER · E-COMMERCE · FULL-STACK',
-    intro: 'Computer engineer designing and building fast, accessible, and scalable web experiences. Specialized in frontend and e-commerce, with experience in backend and infrastructure.',
+    intro: 'Informatics Engineering graduate designing and building fast, accessible, and scalable web experiences. Specialized in frontend and e-commerce, with experience in backend and infrastructure.',
     seeProjects: 'VIEW PROJECTS', resumeCta: 'DOWNLOAD CV', availability: 'Available for remote opportunities and product work',
     stats: [['3+', 'Years of experience'], ['5', 'Projects'], ['2', 'Certifications']],
     selected: 'SELECTED PROJECTS', objective: 'Objective', contribution: 'My contribution', visit: 'Visit project', internal: 'Private / local project',
     experience: 'EXPERIENCE', experienceRole: 'Frontend developer with full-stack participation',
     experienceBody: 'Interface development for e-commerce, service platforms, and corporate sites. Integration with Shopify, CMS platforms, APIs, databases, and operational flows.', present: 'Approx. 3 years',
-    stack: 'MY STACK', education: 'EDUCATION', degree: 'Computer Engineering', university: 'Universidad Católica Andrés Bello · Guayana Campus',
+    stack: 'MY STACK', education: 'EDUCATION', degree: 'Informatics Engineering', university: 'Universidad Católica Andrés Bello · Guayana Campus',
     certs: 'CERTIFICATIONS', thesis: 'UNIVERSITY THESIS', thesisTitle: 'Instagram sentiment analysis',
     thesisBody: 'React and Python system using a pretrained model to categorize sentiment from comments on Instagram posts.',
     contactLabel: 'LET’S TALK', contactTitle: 'HAVE A PROJECT\nIN MIND?',
@@ -347,14 +348,62 @@ export function App() {
   const [language, setLanguage] = useState('en');
   const [menuOpen, setMenuOpen] = useState(false);
   const [introComplete, setIntroComplete] = useState(false);
+  const [cmsContent, setCmsContent] = useState(null);
   const shellRef = useRef(null);
   const progressRef = useRef(null);
   const handleIntroComplete = useCallback(() => setIntroComplete(true), []);
-  const t = copy[language];
-  const activeCurriculumLink = curriculumLinks[language];
-  const projectContent = useMemo(() => projects.map((project) => ({
-    ...project, eyebrowText: project.eyebrow[language], descriptionText: project.description[language], roleText: project.role[language],
-  })), [language]);
+  const settings = cmsContent?.settings;
+  const t = useMemo(() => ({
+    ...copy[language],
+    intro: settings?.heroIntro?.[language] || copy[language].intro,
+    availability: settings?.availability?.[language] || copy[language].availability,
+    contactTitle: settings?.contactTitle?.[language] || copy[language].contactTitle,
+    contactBody: settings?.contactBody?.[language] || copy[language].contactBody,
+  }), [language, settings]);
+  const activeProfileLinks = {
+    linkedin: settings?.linkedinUrl || profileLinks.linkedin,
+    github: settings?.githubUrl || profileLinks.github,
+    email: settings?.email || profileLinks.email,
+  };
+  const cvFilename = `Boris_Beltran_Curriculum_${language.toUpperCase()}.pdf`;
+  const cmsCurriculumUrl = language === 'en' ? settings?.curriculumEnUrl : settings?.curriculumEsUrl;
+  const activeCurriculumLink = cmsCurriculumUrl
+    ? `${cmsCurriculumUrl}?dl=${cvFilename}`
+    : curriculumLinks[language];
+  const projectContent = useMemo(() => {
+    if (cmsContent?.projects) {
+      return cmsContent.projects.filter((project) => project.id && project.name).map((project) => ({
+        id: project.id,
+        name: project.name,
+        image: project.imageUrl || projects.find((item) => item.id === project.id)?.image,
+        imageAlt: project.imageAlt?.[language],
+        eyebrowText: project.category?.[language] || '',
+        descriptionText: project.objective?.[language] || '',
+        roleText: project.contribution?.[language] || '',
+        tech: project.technologies || [],
+        href: project.websiteUrl,
+      }));
+    }
+    return projects.map((project) => ({
+      ...project, eyebrowText: project.eyebrow[language], descriptionText: project.description[language], roleText: project.role[language],
+    }));
+  }, [cmsContent, language]);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    fetchPortfolioContent(controller.signal)
+      .then(setCmsContent)
+      .catch((error) => {
+        if (error.name !== 'AbortError') console.warn('Sanity unavailable; showing bundled content.', error);
+      });
+    return () => controller.abort();
+  }, []);
+
+  useEffect(() => {
+    if (!introComplete || !cmsContent) return undefined;
+    const frame = requestAnimationFrame(() => ScrollTrigger.refresh());
+    return () => cancelAnimationFrame(frame);
+  }, [introComplete, cmsContent]);
 
   useEffect(() => {
     document.documentElement.lang = language;
@@ -454,17 +503,17 @@ export function App() {
               <a
                 className="button curriculum-button"
                 href={activeCurriculumLink}
-                download={`Boris_Beltran_Curriculum_${language.toUpperCase()}.pdf`}
+                download={cvFilename}
               >
                 {t.resumeCta}<DownloadSimple size={18} weight="bold" />
               </a>
-              <ExternalLink href={profileLinks.linkedin}>LinkedIn <ArrowUpRight size={16} /></ExternalLink>
-              <ExternalLink href={profileLinks.github}>GitHub <ArrowUpRight size={16} /></ExternalLink>
-              <a className="hero-email" href={`mailto:${profileLinks.email}`}><EnvelopeSimple size={16} weight="bold" />{profileLinks.email}</a>
+              <ExternalLink href={activeProfileLinks.linkedin}>LinkedIn <ArrowUpRight size={16} /></ExternalLink>
+              <ExternalLink href={activeProfileLinks.github}>GitHub <ArrowUpRight size={16} /></ExternalLink>
+              <a className="hero-email" href={`mailto:${activeProfileLinks.email}`}><EnvelopeSimple size={16} weight="bold" />{activeProfileLinks.email}</a>
             </div>
             <p className="availability"><span />{t.availability}</p>
           </div>
-          <div className="hero-stats">{t.stats.map(([number, label]) => <div key={label}><strong>{number}</strong><span>{label}</span></div>)}</div>
+          <div className="hero-stats">{t.stats.map(([number, label], index) => <div key={label}><strong>{index === 1 ? projectContent.length : number}</strong><span>{label}</span></div>)}</div>
         </section>
 
         <section className="projects section-pad" id="projects">
@@ -478,7 +527,7 @@ export function App() {
                   <div><b>{t.objective}</b><p>{project.descriptionText}</p></div><div><b>{t.contribution}</b><p>{project.roleText}</p></div>
                   {project.href ? <ExternalLink href={project.href} className="project-link">{t.visit}<ArrowUpRight size={16} /></ExternalLink> : <span className="project-private">{t.internal}</span>}
                 </div>
-                <div className="project-image"><img src={project.image} alt={`${project.name} — ${t.projectScreenshot}`} loading="lazy" /></div>
+                <div className="project-image"><img src={project.image} alt={project.imageAlt || `${project.name} — ${t.projectScreenshot}`} loading="lazy" /></div>
               </article>
             ))}
           </div>
@@ -508,13 +557,13 @@ export function App() {
         <section className="contact section-pad" id="contact">
           <div data-reveal><p className="eyebrow">{t.contactLabel}</p><h2>{t.contactTitle.split('\n').map((line) => <span key={line}>{line}</span>)}</h2><p>{t.contactBody}</p></div>
           <div className="contact-actions" data-reveal>
-            <ExternalLink href={profileLinks.linkedin} className="button primary">{t.linkedinCta}<LinkedinLogo size={20} weight="fill" /></ExternalLink>
+            <ExternalLink href={activeProfileLinks.linkedin} className="button primary">{t.linkedinCta}<LinkedinLogo size={20} weight="fill" /></ExternalLink>
             <div className="contact-opportunities">
               <span>{t.contactOpen}</span>
               {t.contactAreas.map((area) => <strong key={area}>{area}</strong>)}
             </div>
-            <ExternalLink href={profileLinks.github} className="button github-button"><GithubLogo size={20} weight="fill" />{t.githubCta}</ExternalLink>
-            <a className="button email-button" href={`mailto:${profileLinks.email}`}><EnvelopeSimple size={20} weight="bold" />{profileLinks.email}</a>
+            <ExternalLink href={activeProfileLinks.github} className="button github-button"><GithubLogo size={20} weight="fill" />{t.githubCta}</ExternalLink>
+            <a className="button email-button" href={`mailto:${activeProfileLinks.email}`}><EnvelopeSimple size={20} weight="bold" />{activeProfileLinks.email}</a>
             <div className="contact-meta">
               <p><GlobeHemisphereWest size={21} />{t.contactMode}</p>
               <p><MapPin size={21} />{t.location}</p>
